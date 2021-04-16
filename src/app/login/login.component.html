@@ -1,0 +1,22 @@
+<ion-content>
+    <ion-grid>
+        <ion-row>
+            <div class="container">
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Usuario</label>
+                    <input type="email" [(ngModel)]="email" class="form-control" id="email">
+                </div>
+
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Contraseña</label>
+                    <input type="password" [(ngModel)]="pass" class="form-control" id="exampleInputPassword1">
+                </div>
+                <ion-button (click)="authBtn()" expand="block" fill="outline">Iniciar Sesión</ion-button>
+                <hr>
+                <div class="other-redes">
+                    <ion-button (click)="googleAuth()" fill="outline">Google</ion-button>
+                </div>
+            </div>
+        </ion-row>
+    </ion-grid>
+</ion-content>

@@ -5,6 +5,9 @@ import {
 import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { Geolocation } from '@capacitor/core';
+import { Coordenadas } from '../core/models/coordenadas';
+import { FirebaseService } from '../core/service/firebase.service';
+
 
 declare const google: any;
 @Component({
@@ -27,7 +30,7 @@ export class HomePage implements OnInit {
   destination = { lat: 10.994265, lng: -74.791453 };
   @ViewChild('mapView') mapView: ElementRef;
 
-  constructor() {
+  constructor(private firestoreService: FirebaseService) {
   }
 
   ngOnInit(): void {
@@ -38,8 +41,22 @@ export class HomePage implements OnInit {
     const coordinates = await Geolocation.getCurrentPosition();
     // Desestructuramos el object coords para obtener la latitud y longitud
     const { latitude, longitude } = coordinates.coords;
+    const userSession = JSON.parse(localStorage.getItem('user'));
 
     this.origin = { lat: latitude, lng: longitude };
+
+    const coordenada: Coordenadas = {
+      lat: latitude,
+      lon: longitude,
+      uidUser: userSession.uid
+    };
+
+    const userCoords = await this.firestoreService.getUserCoordenadas(userSession.uid).get().toPromise();
+    if (!userCoords.exists) {
+      this.firestoreService.createCoordenadas(coordenada);
+    }
+
+
     // create map
     this.map = new google.maps.Map(this.mapView.nativeElement, {
       center: this.origin,

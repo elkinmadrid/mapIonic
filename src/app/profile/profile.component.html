@@ -1,0 +1,17 @@
+<ion-header [translucent]="true">
+    <ion-toolbar >        
+        <ion-title slot="secondary">
+            <ion-chip >
+                <ion-avatar>
+                    <img src="{{userProfile.photoURL || 'assets/images/helloworld.jpeg'}}">
+                </ion-avatar>
+                <ion-label>{{userProfile.displayName || userProfile.email}}</ion-label>
+            </ion-chip>
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    
+
+</ion-content>
