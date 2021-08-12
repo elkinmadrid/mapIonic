@@ -7,5 +7,16 @@
 </ion-header>
 
 <ion-content>
+  <ion-searchbar animated (ionInput)="filterList($event)"
+  ></ion-searchbar>
+  <ion-list lines="none" >
+    <ion-item *ngFor="let item of coordList">
+      <ion-label class="ion-text-wrap">
+        <ion-text color="primary">
+          <h3 (click)="locationDestination(item)">{{ item.email }}</h3>
+        </ion-text>       
+      </ion-label>
+    </ion-item>
+  </ion-list>
   <div #mapView id="map"></div>
 </ion-content>

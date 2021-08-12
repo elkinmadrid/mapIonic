@@ -11,14 +11,14 @@ export class FirebaseService {
 
   public createCoordenadas(coordenadas: Coordenadas) {
     this.firestore.collection('coordenadas').doc(coordenadas.uidUser).set({
-      lon: coordenadas.lon,
+      lng: coordenadas.lon,
       lat: coordenadas.lat,
       date: new Date()
     });
   }
 
   public getAllCoordenadas()  {
-    return this.firestore.collection('coordenadas').snapshotChanges();
+    return this.firestore.collection('coordenadas');
 
   }
   // Obtiene las coordenadas de un usuario

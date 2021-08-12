@@ -16,7 +16,7 @@ export class TabsnavComponent implements OnInit {
   }
 
   ionViewDidEnter() {
-    this.tabRef.select('profile');
+    this.tabRef.select('home');
   }
 
 }

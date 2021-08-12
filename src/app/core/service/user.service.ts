@@ -19,18 +19,20 @@ export class UserService {
       const result = await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
       return result;
     } catch (error) {
-      console.log(error);
 
       throw Error(error);
     }
   }
 
-  async authWithEmailAndPass(email: string, pass: string){
+  async authWithEmailAndPass(email: string, pass: string) {
     try {
       const response = await this.afAuth.createUserWithEmailAndPassword(email, pass);
       return response;
     } catch (error) {
-      console.log(error);
+      if (error.code.includes('auth/email')) {
+          const res = await this.afAuth.signInWithEmailAndPassword(email, pass);
+          return res;
+      }
       throw Error(error);
     }
   }

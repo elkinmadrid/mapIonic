@@ -5,6 +5,7 @@ import {
 import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { Geolocation } from '@capacitor/core';
+import { LoadingController } from '@ionic/angular';
 import { Coordenadas } from '../core/models/coordenadas';
 import { FirebaseService } from '../core/service/firebase.service';
 
@@ -30,11 +31,42 @@ export class HomePage implements OnInit {
   destination = { lat: 10.994265, lng: -74.791453 };
   @ViewChild('mapView') mapView: ElementRef;
 
-  constructor(private firestoreService: FirebaseService) {
+  coordList: any[];
+  coordListBackup: any[] = [];
+  loading: any;
+
+  constructor(private firestoreService: FirebaseService, public loadingController: LoadingController) {
   }
 
-  ngOnInit(): void {
-    this.getCurrentPosition();
+  async ngOnInit() {
+    this.presentLoading()
+    await this.initializeItems();
+    await this.getCurrentPosition();
+    await this.loading.dismiss();
+  }
+
+
+  async initializeItems() {
+    const allList = await this.firestoreService.getAllCoordenadas().get().toPromise();
+    allList.forEach(item => {
+      const data = item.data();
+      const newData = { ...data as {}, email: item.id };
+      this.coordListBackup.push(newData);
+    });
+  }
+
+
+  async filterList(evt) {
+    const searchTerm = evt.srcElement.value;
+    if (!searchTerm || searchTerm.length < 2) {
+      return;
+    }
+    this.coordList = this.coordListBackup;
+    this.coordList = this.coordList.filter(current => {
+      if (current.email && searchTerm) {
+        return (current.email.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
+      }
+    });
   }
 
   async getCurrentPosition() {
@@ -48,31 +80,39 @@ export class HomePage implements OnInit {
     const coordenada: Coordenadas = {
       lat: latitude,
       lon: longitude,
-      uidUser: userSession.uid
+      uidUser: userSession.email
     };
 
-    const userCoords = await this.firestoreService.getUserCoordenadas(userSession.uid).get().toPromise();
+    const userCoords = await this.firestoreService.getUserCoordenadas(userSession.email).get().toPromise();
     if (!userCoords.exists) {
       this.firestoreService.createCoordenadas(coordenada);
+    } else {
+      this.firestoreService.updateCoordenadas(userSession.email, coordenada);
     }
 
 
     // create map
     this.map = new google.maps.Map(this.mapView.nativeElement, {
       center: this.origin,
-      zoom: 5
+      zoom: 15
     });
 
     this.directionsDisplay.setMap(this.map);
+    this.locationDestination(this.destination);
+  }
+
+  locationDestination(destination) {
+    this.coordList = [];
+    this.destination = destination;
     google.maps.event.addListenerOnce(this.map, 'idle', () => {
-      this.getRoute();
+      this.getRoute(this.origin, this.destination);
     });
   }
 
-  private getRoute(): void {
+  private getRoute(originParam, destinationParam): void {
     this.directionsService.route({
-      origin: this.origin,
-      destination: this.destination,
+      origin: originParam,
+      destination: destinationParam,
       travelMode: google.maps.TravelMode.DRIVING,
     }, (response, status) => {
       if (status === google.maps.DirectionsStatus.OK) {
@@ -81,6 +121,14 @@ export class HomePage implements OnInit {
         alert('No se pudieron mostrar las direcciones debido a: ' + status);
       }
     });
+  }
+
+
+  async presentLoading() {
+    this.loading  = await this.loadingController.create({
+      message: 'Por favor, espere...'
+    });
+    await this.loading.present();
   }
 
 }

@@ -39,7 +39,6 @@ export class LoginComponent implements OnInit {
       }
     ).catch((error) => {
       this.showAlert('Error', error);
-      console.log('ERROR', error);
     }
     );
   }
@@ -52,7 +51,6 @@ export class LoginComponent implements OnInit {
       }
     ).catch((error) => {
       this.showAlert('Error', error);
-      console.log('ERROR', error);
     }
     );
   }
